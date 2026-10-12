@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>For You - Our Little Memories</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;600;700&family=Playfair+Display:ital,wght@0,500;0,600;1,500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+<header class="topbar">
+    <a href="#top" class="brand">✳ little things, kept forever</a>
+    <span class="top-note">MADE WITH LOVE ♡</span>
+</header>
+
+<main id="top">
+    <section class="intro">
+        <p class="eyebrow">✦ A PERSONAL KEEPSAKE ✦</p>
+        <h1>Some moments<br>deserve to be <em>kept.</em></h1>
+        <p class="intro-copy">Untuk kamu, dan hal-hal kecil yang diam-diam<br>menjadi berarti sejak ada kamu.</p>
+        <a href="#scrapbook" class="open-button">Open our little book <span>↗</span></a>
+        <p class="intro-footer">VOL. 01 — AN UNFINISHED STORY — 2026</p>
+    </section>
+
+    <section class="scrapbook" id="scrapbook">
+        <div class="book-heading"><span>THE MEMORY ARCHIVE</span><span>OUR LITTLE STORY</span></div>
+        <div class="book-stage">
+            <div class="book">
+                <input type="checkbox" id="turn1" class="turn-check">
+                <div class="sheet sheet-one">
+                    <div class="sheet-front">
+                        <div class="paper">
+                            <span class="stamp">A KEEPSAKE<br>FOR YOU</span>
+                            <div class="flower">✿</div>
+                            <p class="cover-small">THE STORY OF</p>
+                            <h2>you <i>&amp;</i> me</h2>
+                            <div class="line"></div>
+                            <p class="cover-subtitle">little memories, lovely days<br>&amp; words left unsaid</p>
+                            <p class="cover-date">MADE WITH A FULL HEART · 2026</p>
+                            <label for="turn1" class="turn-corner">↗</label>
+                        </div>
+                    </div>
+                    <div class="sheet-back">
+                        <div class="paper">
+                            <span class="page-number">— 01 —</span>
+                            <p class="handwritten">for the days<br>i want to remember</p>
+                            <div class="flower pressed">✿</div>
+                            <p class="small-note">a collection of little things<br>that mean a lot.</p>
+                            <label for="turn1" class="turn-corner back-corner">↙</label>
+                        </div>
+                    </div>
+                </div>
+
+                <input type="checkbox" id="turn2" class="turn-check">
+                <div class="sheet sheet-two">
+                    <div class="sheet-front">
+                        <div class="paper">
+                            <p class="page-kicker">01 / THE BEGINNING</p>
+                            <h3>It started with a hello.</h3>
+                            <p class="page-copy">Kadang hal yang paling indah datang tanpa banyak rencana. Sebuah obrolan sederhana, tawa kecil, lalu hari-hari yang jadi sedikit lebih menyenangkan.</p>
+                            <p class="quote">“I'm glad our paths crossed.”</p>
+                            <p class="date-label">THE DAY OUR STORY BEGAN</p>
+                            <label for="turn2" class="turn-corner">↗</label>
+                        </div>
+                    </div>
+                    <div class="sheet-back">
+                        <div class="paper">
+                            <span class="page-number">— 02 —</span>
+                            <p class="handwritten">a little moment<br>with you</p>
+                            <div class="flower pressed">❀</div>
+                            <p class="small-note">some days become memories<br>before we even notice.</p>
+                            <label for="turn2" class="turn-corner back-corner">↙</label>
+                        </div>
+                    </div>
+                </div>
+
+                <input type="checkbox" id="turn3" class="turn-check">
+                <div class="sheet sheet-three">
+                    <div class="sheet-front">
+                        <div class="paper">
+                            <p class="page-kicker">02 / A LITTLE MOMENT</p>
+                            <div class="photo-frame">
+                                <img src="{{ url_for('static', filename='images/foto-kenangan-1.jpg') }}" alt="Foto kenangan kita">
+                                <p>a day to remember ♡</p>
+                            </div>
+                            <p class="page-copy">Momen biasa pun terasa istimewa saat diingat bersama orang yang tepat.</p>
+                            <p class="date-label">A MEMORY WITH YOU</p>
+                            <label for="turn3" class="turn-corner">↗</label>
+                        </div>
+                    </div>
+                    <div class="sheet-back">
+                        <div class="paper">
+                            <span class="page-number">— 03 —</span>
+                            <p class="handwritten">little things<br>i adore</p>
+                            <div class="flower pressed">✿</div>
+                            <p class="small-note">your laugh, your stories,<br>the calm i find near you.</p>
+                            <label for="turn3" class="turn-corner back-corner">↙</label>
+                        </div>
+                    </div>
+                </div>
+
+                <input type="checkbox" id="turn4" class="turn-check">
+                <div class="sheet sheet-four">
+                    <div class="sheet-front">
+                        <div class="paper">
+                            <p class="page-kicker">03 / LITTLE THINGS</p>
+                            <h3>Things I adore.</h3>
+                            <p class="page-copy">Cara kamu tertawa. Cerita-cerita kecilmu. Caramu membuat suasana terasa lebih ringan. Hal-hal sederhana yang mungkin tidak kamu sadari, tapi selalu berhasil membuat hariku lebih baik.</p>
+                            <p class="quote">“It's the little things.”</p>
+                            <p class="date-label">THE DETAILS I KEEP</p>
+                            <label for="turn4" class="turn-corner">↗</label>
+                        </div>
+                    </div>
+                    <div class="sheet-back">
+                        <div class="paper">
+                            <span class="page-number">— 04 —</span>
+                            <p class="handwritten">wish we could<br>pause time</p>
+                            <div class="flower pressed">❀</div>
+                            <p class="small-note">one photo, a thousand stories<br>only we know.</p>
+                            <label for="turn4" class="turn-corner back-corner">↙</label>
+                        </div>
+                    </div>
+                </div>
+
+                <input type="checkbox" id="turn5" class="turn-check">
+                <div class="sheet sheet-five">
+                    <div class="sheet-front">
+                        <div class="paper">
+                            <p class="page-kicker">04 / A NOTE FOR YOU</p>
+                            <h3>If you ever forget...</h3>
+                            <p class="page-copy">Kalau suatu hari kamu merasa lelah, semoga kamu ingat bahwa kamu layak disayangi dengan lembut. Kamu tidak harus selalu kuat, tidak harus selalu baik-baik saja. Semoga hari-harimu dipenuhi hal-hal yang membuatmu merasa aman dan dihargai.</p>
+                            <p class="quote">“You deserve gentle things.”</p>
+                            <p class="date-label">A LITTLE REMINDER</p>
+                            <label for="turn5" class="turn-corner">↗</label>
+                        </div>
+                    </div>
+                    <div class="sheet-back">
+                        <div class="paper">
+                            <p class="page-kicker">05 / A LETTER FOR YOU</p>
+                            <div class="letter">
+                                <p>Dear you,</p>
+                                <p>Aku nggak tahu semua hal yang akan kita temui ke depannya. Tapi aku tahu, aku senang bisa mengenalmu dan mengumpulkan momen-momen kecil ini bersamamu.</p>
+                                <p>Terima kasih sudah menjadi dirimu sendiri. Semoga saat membaca ini, kamu tersenyum sedikit.</p>
+                                <p class="signature">with affection, ♡</p>
+                            </div>
+                            <p class="date-label">A LETTER, JUST FOR YOU</p>
+                            <label for="turn5" class="turn-corner back-corner">↙</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <p class="flip-hint">✧ Klik sudut kanan bawah untuk membalik halaman ✧</p>
+    </section>
+
+    <section class="closing">
+        <div class="closing-flower">✿</div>
+        <p>If I could keep one thing<br><em>it would be these moments with you.</em></p>
+        <span>made with affection, just for you ♡</span>
+    </section>
+</main>
+
+<footer><span>A LITTLE MEMORY BOOK</span><span>♡</span><span>MADE WITH LOVE · 2026</span></footer>
+
+<div class="music-player">
+    <span>OUR SONG ♫</span>
+    <audio controls loop>
+        <source src="{{ url_for('static', filename='audio/lagu.mp3') }}" type="audio/mpeg">
+        Browser kamu tidak mendukung audio.
+    </audio>
+</div>
+</body>
+</html>
