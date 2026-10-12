@@ -52,3 +52,7 @@ Jika PowerShell memblokir aktivasi lingkungan virtual, kamu bisa memakai Command
 - Membalik halaman memakai checkbox dan animasi CSS, bukan JavaScript.
 - Musik menggunakan kontrol audio bawaan browser; pengunjung perlu menekan tombol putar.
 - Font Google Fonts memerlukan internet; font cadangan akan digunakan jika tidak tersedia.
+
+
+## Tampilan responsif
+Website menggunakan CSS responsif untuk menyesuaikan tampilan pada desktop, tablet, dan layar HP. Efek membalik halaman tetap menggunakan checkbox HTML dan CSS tanpa JavaScript.

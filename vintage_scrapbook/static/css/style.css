@@ -111,3 +111,96 @@ footer span:nth-child(2) { font-size: 18px; color: #b67b59; }
 @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; }
 }
+
+
+/* Responsive improvements: desktop, tablet, and small mobile screens */
+img, audio, video { max-width: 100%; }
+body { min-width: 0; overflow-x: hidden; }
+.topbar, footer { gap: 12px; }
+.brand { max-width: 72%; }
+.intro-copy { max-width: 42rem; padding-inline: 8px; }
+.book-stage { max-width: 790px; }
+.book { width: 100%; }
+.paper { min-width: 0; overflow-wrap: anywhere; }
+.paper h2, .paper h3, .page-copy, .letter p { overflow-wrap: anywhere; }
+.photo-frame img { max-width: 100%; }
+.music-player { max-width: calc(100vw - 20px); }
+.music-player audio { min-width: 0; }
+
+@media (max-width: 768px) {
+    .topbar { padding: 16px 4%; }
+    .brand { font-size: clamp(15px, 3.5vw, 18px); }
+    .top-note { letter-spacing: 1px; }
+    .intro { min-height: auto; padding: 64px 16px 38px; }
+    h1 { font-size: clamp(34px, 8vw, 52px); }
+    .intro-copy br { display: none; }
+    .intro-copy { max-width: 32rem; }
+    .open-button { gap: 18px; padding: 13px 16px; }
+    .scrapbook { padding: 26px 10px 48px; }
+    .book-heading { gap: 10px; font-size: clamp(6px, 1.5vw, 8px); }
+    .book { aspect-ratio: 1.08 / 1; }
+    .sheet { width: calc(50% - 7px); }
+    .sheet-front, .sheet-back { inset: 9px 0; }
+    .paper { padding: clamp(8px, 2vw, 16px); }
+    .paper h2 { font-size: clamp(25px, 5.5vw, 42px); letter-spacing: -1px; }
+    .paper h3 { font-size: clamp(15px, 2.8vw, 23px); }
+    .page-copy { font-size: clamp(9px, 1.5vw, 12px); }
+    .handwritten { font-size: clamp(21px, 4.5vw, 32px); }
+    .photo-frame { width: 94%; }
+    .flip-hint { padding-inline: 10px; line-height: 1.7; }
+    footer { flex-wrap: wrap; justify-content: center; text-align: center; }
+}
+
+@media (max-width: 480px) {
+    .topbar { align-items: flex-start; }
+    .brand { max-width: 68%; line-height: 1.25; }
+    .top-note { font-size: 6px; text-align: right; line-height: 1.5; }
+    .eyebrow { font-size: 8px; letter-spacing: 2px; }
+    .intro { padding-top: 52px; }
+    h1 { font-size: clamp(32px, 9vw, 42px); line-height: 1.12; letter-spacing: -1px; }
+    .intro-copy { font-size: 13px; line-height: 1.7; }
+    .intro-footer { margin-top: 32px; line-height: 1.7; }
+    .book-heading { align-items: center; letter-spacing: .2px; }
+    .book { aspect-ratio: .78 / 1; }
+    .book::before { border-width: 3px; }
+    .sheet { width: calc(50% - 5px); }
+    .sheet-front, .sheet-back { inset: 7px 0; }
+    .paper { padding: 9px 6px; }
+    .stamp { top: 7%; right: 5%; font-size: 4px; padding: 3px; letter-spacing: .3px; }
+    .flower { font-size: clamp(19px, 6vw, 28px); }
+    .cover-small { font-size: 6px; letter-spacing: 1px; }
+    .paper h2 { font-size: clamp(21px, 6.3vw, 30px); margin: 5px 0 8px; }
+    .cover-subtitle { font-size: 8px; }
+    .cover-date { font-size: 4px; letter-spacing: 0; }
+    .page-number { font-size: 6px; }
+    .handwritten { font-size: clamp(18px, 5.6vw, 25px); margin-top: 25%; }
+    .small-note { font-size: 8px; line-height: 1.6; }
+    .page-kicker { font-size: 5px; letter-spacing: 0; margin-bottom: 6px; }
+    .paper h3 { font-size: clamp(13px, 4vw, 17px); line-height: 1.12; margin-bottom: 6px; }
+    .page-copy { font-size: 8px; line-height: 1.45; }
+    .date-label { font-size: 6px; letter-spacing: 0; }
+    .photo-frame { padding: 3px 3px 2px; margin: 4px auto 6px; }
+    .photo-frame p { font-size: 11px; margin: 4px 0 2px; }
+    .quote { font-size: 11px; }
+    .letter { padding: 6px; }
+    .letter p { font-size: 10px; line-height: 1.35; margin-bottom: 4px; }
+    .letter .signature { font-size: 14px; }
+    .turn-corner { width: 27px; height: 27px; font-size: 15px; }
+    .flip-hint { font-size: 7px; margin-top: 22px; }
+    .closing { padding: 40px 16px 72px; }
+    footer { padding: 18px 12px 76px; font-size: 6px; }
+    .music-player { left: 8px; right: 8px; bottom: 8px; gap: 7px; padding: 6px 8px; }
+    .music-player span { font-size: 6px; letter-spacing: .4px; }
+    .music-player audio { width: min(165px, 54vw); height: 28px; }
+}
+
+@media (max-width: 360px) {
+    .book-heading span { max-width: 48%; }
+    .book-heading span:last-child { text-align: right; }
+    .paper { padding-inline: 5px; }
+    .page-copy { font-size: 7px; }
+    .letter p { font-size: 9px; }
+    .music-player span { display: none; }
+    .music-player { justify-content: center; }
+    .music-player audio { width: 80%; }
+}
