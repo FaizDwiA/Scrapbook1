@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Buku Pesan Scrapbook</title>
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;700&family=Pacifico&family=Playfair+Display:ital,wght@0,500;1,500&family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div id="home">
+  <h1>Buku Pesan 💌</h1>
+  <p class="sub">Pilih tema bukumu, tulis pesan &amp; tempel foto, lalu bagikan lewat QR.</p>
+  <div class="grid" id="grid"></div>
+</div>
+
+<div id="ed">
+  <h1 id="ename"></h1>
+  <p class="hint" id="hint">Ketuk foto untuk mengganti • Ketuk tulisan untuk mengedit</p>
+  <div class="stage" id="stage"></div>
+  <div class="bar"><button class="b1" id="prev" onclick="go(-1)">‹</button><span id="dots"></span><button class="b1" id="next" onclick="go(1)">›</button></div>
+  <div class="bar">
+    <button class="b1" id="back" onclick="show('home')">← Tema</button>
+    <button class="b2" id="share" onclick="share()">📲 Buat QR</button>
+    <a class="btn b2" id="mine" href="" style="display:none">✨ Buat bukumu sendiri</a>
+  </div>
+</div>
+
+<div id="res">
+  <h1>Bukumu siap! 🎉</h1>
+  <p class="sub">Scan QR ini untuk membuka bukunya.</p>
+  <div id="qr"></div><br>
+  <input id="lnk" readonly onclick="this.select()">
+  <div class="bar">
+    <button class="b2" onclick="dlQR()">⬇ Download QR</button>
+    <a class="btn b1" id="see" target="_blank">👀 Lihat buku</a>
+    <button class="b1" onclick="show('home')">Buat baru</button>
+  </div>
+</div>
+<input type="file" id="file" accept="image/*" hidden>
+
+<script>
+/* ===== PENGATURAN: URL Firebase Realtime Database ===== */
+const DB="https://scrapbook-dca22-default-rtdb.asia-southeast1.firebasedatabase.app";
+
+const $=id=>document.getElementById(id);
+const TH=[["Manis Pastel","🌸"],["Polaroid Ceria","☀️"],["Kraft Vintage","📎"],["Elegan Emas","✦"],["Minimal Putih","🤍"],["Floral Lembut","🌷"]];
+const DEF=[["Pesan Untukmu","Untuk: nama penerima","Dari: namamu"],["Tulis pesan manismu di sini…"],["Tulis pesanmu di sini…"],["Tulis pesanmu di sini…"],["Terima kasih sudah menjadi bagian dari ceritaku","Dengan cinta,","namamu"]];
+const NPH=[1,1,2,1,0];
+const ph=(i,s)=>`<div class="ph empty" data-i="${i}" style="${s}"></div>`;
+const tx=(i,c,s)=>`<div class="tx ${c}" data-i="${i}" style="${s}"></div>`;
+const LAY=[
+()=>tx(0,'ti','top:34px;font-size:30px')+ph(0,'left:50px;top:100px;width:260px;height:250px')+tx(1,'bd','top:366px')+tx(2,'bd','top:410px'),
+()=>ph(0,'left:30px;top:34px;width:300px;height:200px')+tx(0,'bd msg','top:256px;height:200px'),
+()=>ph(0,'left:30px;top:34px;width:140px;height:170px;transform:rotate(-3deg)')+ph(1,'left:190px;top:54px;width:140px;height:170px;transform:rotate(3deg)')+tx(0,'bd msg','top:248px;height:210px'),
+()=>tx(0,'bd msg','top:40px;height:170px')+ph(0,'left:50px;top:230px;width:260px;height:206px'),
+()=>tx(0,'bd msg','top:80px;height:200px')+tx(1,'bd','top:320px')+tx(2,'ti','top:360px;font-size:28px')
+];
+let S,EDIT=true,tgt=0;
+const newBook=t=>({t,i:0,p:DEF.map((d,i)=>({tx:[...d],ph:Array(NPH[i]).fill('')}))});
+
+function mkPage(i,t,edit,data){
+  const p=document.createElement('div');p.className='page th'+t;
+  const d=TH[t][1];
+  p.innerHTML=LAY[i]()+`<span class="fl" style="left:14px;top:10px">${d}</span><span class="fl" style="right:14px;bottom:8px">${d}</span>`;
+  p.querySelectorAll('.tx').forEach(e=>{
+    const k=+e.dataset.i;e.textContent=data.tx[k]||'';
+    if(edit){
+      e.contentEditable='true';e.spellcheck=false;
+      e.oninput=()=>data.tx[k]=e.innerText;
+      e.onfocus=()=>{if(e.textContent===DEF[i][k])getSelection().selectAllChildren(e)};
+      e.onpaste=ev=>{ev.preventDefault();document.execCommand('insertText',false,ev.clipboardData.getData('text').slice(0,300))};
+    }
+  });
+  p.querySelectorAll('.ph').forEach(e=>{
+    const v=data.ph[+e.dataset.i]||'';
+    if(/^data:image\/jpeg;base64,[A-Za-z0-9+\/=]+$/.test(v)){e.style.backgroundImage=`url("${v}")`;e.classList.remove('empty')}
+  });
+  return p;
+}
+function fit(){
+  document.querySelectorAll('.thumb').forEach(th=>{if(th.firstChild)th.firstChild.style.transform=`scale(${th.clientWidth/360})`});
+  const pg=$('stage').querySelector('.page');if(pg)pg.style.transform=`scale(${$('stage').clientWidth/360})`;
+}
+function show(id){
+  ['home','ed','res'].forEach(x=>$(x).style.display=x==id?'block':'none');
+  window.scrollTo(0,0);fit();
+}
+function render(dir){
+  const sh=document.createElement('div');sh.className='sheet'+(dir?(dir>0?' nx':' pv'):'');
+  sh.appendChild(mkPage(S.i,S.t,EDIT,S.p[S.i]));
+  $('stage').innerHTML='';$('stage').appendChild(sh);fit();
+  $('dots').textContent=S.p.map((_,k)=>k==S.i?'●':'○').join(' ');
+  $('prev').style.visibility=S.i?'visible':'hidden';
+  $('next').style.visibility=S.i<S.p.length-1?'visible':'hidden';
+}
+function go(d){const n=S.i+d;if(n<0||n>=S.p.length)return;S.i=n;render(d)}
+function pick(t){
+  S=newBook(t);EDIT=true;
+  $('ename').textContent=TH[t][0];$('stage').className='stage';
+  $('hint').style.display='';$('share').style.display='';$('back').style.display='';$('mine').style.display='none';
+  show('ed');render(0);
+}
+/* grid tema */
+TH.forEach((t,i)=>{
+  const c=document.createElement('div');c.className='card';
+  c.innerHTML='<div class="thumb"></div><b>'+t[0]+'</b>';c.onclick=()=>pick(i);$('grid').appendChild(c);
+  c.firstChild.appendChild(mkPage(0,i,false,newBook(i).p[0]));
+});
+/* upload foto (dikompres agar ringan) */
+$('stage').onclick=e=>{if(EDIT&&e.target.classList.contains('ph')){tgt=+e.target.dataset.i;$('file').click()}};
+$('file').onchange=e=>{
+  const f=e.target.files[0];e.target.value='';if(!f)return;
+  const im=new Image();
+  im.onload=()=>{
+    const s=Math.min(1,600/Math.max(im.width,im.height)),c=document.createElement('canvas');
+    c.width=im.width*s;c.height=im.height*s;c.getContext('2d').drawImage(im,0,0,c.width,c.height);
+    S.p[S.i].ph[tgt]=c.toDataURL('image/jpeg',.7);render(0);URL.revokeObjectURL(im.src);
+  };
+  im.src=URL.createObjectURL(f);
+};
+/* swipe */
+let x0=0;
+$('stage').ontouchstart=e=>x0=e.touches[0].clientX;
+$('stage').ontouchend=e=>{const d=e.changedTouches[0].clientX-x0;if(Math.abs(d)>60&&!(EDIT&&document.activeElement.isContentEditable))go(d<0?1:-1)};
+/* simpan & QR */
+async function share(){
+  if(!DB){alert('Penyimpanan online belum diatur. Isi konstanta DB di bagian atas script.');return}
+  const b=$('share');b.textContent='Menyimpan…';b.disabled=true;
+  try{
+    const r=await fetch(DB+'/books.json',{method:'POST',body:JSON.stringify({t:S.t,p:S.p})});
+    const {name}=await r.json();if(!name)throw 0;
+    const url=location.origin+location.pathname+'?b='+name;
+    $('lnk').value=url;$('see').href=url;$('qr').innerHTML='';
+    new QRCode($('qr'),{text:url,width:240,height:240,correctLevel:QRCode.CorrectLevel.M});
+    show('res');
+  }catch(e){alert('Gagal menyimpan. Cek koneksi atau pengaturan database.')}
+  b.textContent='📲 Buat QR';b.disabled=false;
+}
+function dlQR(){
+  const c=$('qr').querySelector('canvas'),o=document.createElement('canvas');
+  o.width=o.height=c.width+60;const x=o.getContext('2d');x.fillStyle='#fff';x.fillRect(0,0,o.width,o.height);x.drawImage(c,30,30);
+  const a=document.createElement('a');a.download='qr-scrapbook.png';a.href=o.toDataURL();a.click();
+}
+/* mode penerima: buka buku dari QR */
+(async()=>{
+  const id=new URLSearchParams(location.search).get('b');if(!id)return;
+  show('ed');$('ename').textContent='Memuat…';$('back').style.display='none';$('share').style.display='none';
+  try{
+    const d=await (await fetch(DB+'/books/'+encodeURIComponent(id)+'.json')).json();
+    const t=+d.t;if(!(t>=0&&t<TH.length))throw 0;
+    S=newBook(t);
+    S.p.forEach((pg,i)=>{const sp=(d.p||{})[i]||{};
+      pg.tx=pg.tx.map((_,k)=>String((sp.tx||[])[k]||'').slice(0,400));
+      pg.ph=pg.ph.map((_,k)=>String((sp.ph||[])[k]||''));});
+    EDIT=false;$('stage').className='stage view';$('hint').style.display='none';
+    $('ename').textContent='Pesan untukmu 💌';$('mine').href=location.pathname;$('mine').style.display='';
+    render(0);
+  }catch(e){$('ename').textContent='Buku tidak ditemukan 😢';$('hint').style.display='none';$('mine').href=location.pathname;$('mine').style.display=''}
+})();
+addEventListener('resize',fit);addEventListener('load',fit);fit();
+</script>
+</body>
+</html>
