@@ -3,22 +3,39 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Buku Pesan Scrapbook</title>
-<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;700&family=Pacifico&family=Playfair+Display:ital,wght@0,500;1,500&family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+<title>Pixiepages Scrapbook</title>
+<link rel="icon" href="logo.jpg">
+<meta name="theme-color" content="#f9c6d4">
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;700&family=Pacifico&family=Playfair+Display:ital,wght@0,500;1,500&family=Poppins:wght@400;600&family=Fredoka:wght@400;500;600&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
 <div id="home">
-  <h1>Buku Pesan 💌</h1>
-  <p class="sub">Pilih tema bukumu, tulis pesan &amp; tempel foto, lalu bagikan lewat QR.</p>
+  <div class="logo big"><img src="logo.jpg" alt="Pixiepages Scrapbook"></div>
+  <h1 class="sr">Pixiepages Scrapbook</h1>
+  <p class="sub">Pilih tema bukumu, tulis pesan &amp; tempel foto, lalu bagikan lewat QR 💌</p>
   <div class="grid" id="grid"></div>
 </div>
 
 <div id="ed">
+  <a class="brand" href="."><span class="logo sm"><img src="logo.jpg" alt=""></span>pixiepages scrapbook</a>
   <h1 id="ename"></h1>
-  <p class="hint" id="hint">Ketuk foto untuk mengganti • Ketuk tulisan untuk mengedit</p>
+  <p class="hint" id="hint">Ketuk foto untuk mengatur (geser, besarkan, putar) • Ketuk tulisan untuk mengedit</p>
   <div class="stage" id="stage"></div>
+  <div class="pt" id="pt" hidden>
+    <div class="seg"><button id="m0" class="on">✋ Geser bingkai</button><button id="m1">🔍 Atur isi foto</button></div>
+    <label>Ukuran bingkai<input type="range" id="rsc" min="40" max="200" step="1"></label>
+    <label>Zoom isi foto<input type="range" id="rz" min="100" max="300" step="1"></label>
+    <label>Putar<input type="range" id="rro" min="-30" max="30" step="1"></label>
+    <p class="tip">Tips: seret foto untuk menggeser • cubit dengan dua jari (atau scroll mouse) untuk memperbesar</p>
+    <div class="bar">
+      <button class="b1" id="chg">🖼 Ganti foto</button>
+      <button class="b1" id="rst">↺ Reset</button>
+      <button class="b1" id="del">🗑 Hapus</button>
+      <button class="b2" id="done">✓ Selesai</button>
+    </div>
+  </div>
   <div class="bar"><button class="b1" id="prev" onclick="go(-1)">‹</button><span id="dots"></span><button class="b1" id="next" onclick="go(1)">›</button></div>
   <div class="bar">
     <button class="b1" id="back" onclick="show('home')">← Tema</button>
@@ -28,6 +45,7 @@
 </div>
 
 <div id="res">
+  <a class="brand" href="."><span class="logo sm"><img src="logo.jpg" alt=""></span>pixiepages scrapbook</a>
   <h1>Bukumu siap! 🎉</h1>
   <p class="sub">Scan QR ini untuk membuka bukunya.</p>
   <div id="qr"></div><br>
@@ -38,6 +56,7 @@
     <button class="b1" onclick="show('home')">Buat baru</button>
   </div>
 </div>
+<footer class="foot">made with 🌸 pixiepages scrapbook</footer>
 <input type="file" id="file" accept="image/*" hidden>
 
 <script>
@@ -57,8 +76,16 @@ const LAY=[
 ()=>tx(0,'bd msg','top:40px;height:170px')+ph(0,'left:50px;top:230px;width:260px;height:206px'),
 ()=>tx(0,'bd msg','top:80px;height:200px')+tx(1,'bd','top:320px')+tx(2,'ti','top:360px;font-size:28px')
 ];
-let S,EDIT=true,tgt=0;
-const newBook=t=>({t,i:0,p:DEF.map((d,i)=>({tx:[...d],ph:Array(NPH[i]).fill('')}))});
+let S,EDIT=true,tgt=0,sel=-1,mode=0,moved=false;
+const dfl=()=>({x:0,y:0,s:1,r:0,z:1,px:50,py:50});
+const newBook=t=>({t,i:0,p:DEF.map((d,i)=>({tx:[...d],ph:Array(NPH[i]).fill(''),pf:Array.from({length:NPH[i]},dfl)}))});
+function applyPh(e,pf){
+  pf=pf||dfl();const im=e.firstChild;
+  e.style.transform=`translate(${pf.x}px,${pf.y}px) rotate(${(+e.dataset.br||0)+pf.r}deg) scale(${pf.s})`;
+  im.style.backgroundPosition=`${pf.px}% ${pf.py}%`;
+  im.style.transformOrigin=`${pf.px}% ${pf.py}%`;
+  im.style.transform=`scale(${pf.z})`;
+}
 
 function mkPage(i,t,edit,data){
   const p=document.createElement('div');p.className='page th'+t;
@@ -74,8 +101,11 @@ function mkPage(i,t,edit,data){
     }
   });
   p.querySelectorAll('.ph').forEach(e=>{
-    const v=data.ph[+e.dataset.i]||'';
-    if(/^data:image\/jpeg;base64,[A-Za-z0-9+\/=]+$/.test(v)){e.style.backgroundImage=`url("${v}")`;e.classList.remove('empty')}
+    const k=+e.dataset.i,v=data.ph[k]||'';
+    const m=/rotate\((-?[\d.]+)deg\)/.exec(e.getAttribute('style')||'');e.dataset.br=m?m[1]:0;
+    const im=document.createElement('div');im.className='im';e.appendChild(im);
+    if(/^data:image\/jpeg;base64,[A-Za-z0-9+\/=]+$/.test(v)){im.style.backgroundImage=`url("${v}")`;e.classList.remove('empty')}
+    applyPh(e,(data.pf||[])[k]);
   });
   return p;
 }
@@ -94,10 +124,11 @@ function render(dir){
   $('dots').textContent=S.p.map((_,k)=>k==S.i?'●':'○').join(' ');
   $('prev').style.visibility=S.i?'visible':'hidden';
   $('next').style.visibility=S.i<S.p.length-1?'visible':'hidden';
+  if(sel>=0&&EDIT&&selEl())select(sel);else deselect();
 }
-function go(d){const n=S.i+d;if(n<0||n>=S.p.length)return;S.i=n;render(d)}
+function go(d){const n=S.i+d;if(n<0||n>=S.p.length)return;S.i=n;sel=-1;render(d)}
 function pick(t){
-  S=newBook(t);EDIT=true;
+  S=newBook(t);EDIT=true;sel=-1;
   $('ename').textContent=TH[t][0];$('stage').className='stage';
   $('hint').style.display='';$('share').style.display='';$('back').style.display='';$('mine').style.display='none';
   show('ed');render(0);
@@ -105,25 +136,93 @@ function pick(t){
 /* grid tema */
 TH.forEach((t,i)=>{
   const c=document.createElement('div');c.className='card';
-  c.innerHTML='<div class="thumb"></div><b>'+t[0]+'</b>';c.onclick=()=>pick(i);$('grid').appendChild(c);
+  c.innerHTML='<div class="thumb"></div><b>'+t[0]+'</b>';c.tabIndex=0;c.onkeydown=e=>{if(e.key=='Enter')pick(i)};c.onclick=()=>pick(i);$('grid').appendChild(c);
   c.firstChild.appendChild(mkPage(0,i,false,newBook(i).p[0]));
 });
+/* ===== editor foto ===== */
+const clamp=(v,a,b)=>Math.min(b,Math.max(a,v));
+const cur=()=>S.p[S.i].pf[sel];
+const selEl=()=>$('stage').querySelector(`.ph[data-i="${sel}"]`);
+const scF=()=>$('stage').clientWidth/360;
+function sync(){
+  const f=cur();if(!f)return;
+  $('rsc').value=Math.round(f.s*100);$('rz').value=Math.round(f.z*100);$('rro').value=Math.round(f.r);
+  $('m0').classList.toggle('on',mode==0);$('m1').classList.toggle('on',mode==1);
+}
+function select(i){
+  sel=i;
+  $('stage').querySelectorAll('.ph').forEach(e=>e.classList.toggle('sel',+e.dataset.i==i));
+  $('pt').hidden=false;sync();
+}
+function deselect(){sel=-1;$('pt').hidden=true;$('stage').querySelectorAll('.ph.sel').forEach(e=>e.classList.remove('sel'))}
+function upd(){const e=selEl();if(e)applyPh(e,cur());sync()}
+$('m0').onclick=()=>{mode=0;sync()};$('m1').onclick=()=>{mode=1;sync()};
+$('rsc').oninput=e=>{cur().s=+e.target.value/100;upd()};
+$('rz').oninput=e=>{cur().z=+e.target.value/100;upd()};
+$('rro').oninput=e=>{cur().r=+e.target.value;upd()};
+$('rst').onclick=()=>{S.p[S.i].pf[sel]=dfl();upd()};
+$('done').onclick=deselect;
+$('chg').onclick=()=>{tgt=sel;$('file').click()};
+$('del').onclick=()=>{if(!confirm('Hapus foto ini?'))return;S.p[S.i].ph[sel]='';S.p[S.i].pf[sel]=dfl();sel=-1;render(0)};
+
+const ptrs=new Map();let lastD=0;
+const st=$('stage');
+st.addEventListener('pointerdown',e=>{
+  if(!EDIT)return;const ph=e.target.closest('.ph');
+  if(!ph||ph.classList.contains('empty'))return;
+  if(sel!=+ph.dataset.i)select(+ph.dataset.i);
+  if(!ptrs.size)moved=false;
+  ptrs.set(e.pointerId,{x:e.clientX,y:e.clientY});lastD=0;
+  try{ph.setPointerCapture(e.pointerId)}catch(_){}
+});
+st.addEventListener('pointermove',e=>{
+  const p=ptrs.get(e.pointerId);if(!p||sel<0)return;
+  const dx=e.clientX-p.x,dy=e.clientY-p.y;p.x=e.clientX;p.y=e.clientY;
+  const f=cur(),el=selEl(),k=scF();if(!f||!el)return;
+  if(ptrs.size==1){
+    if(Math.abs(dx)+Math.abs(dy)>0)moved=true;
+    if(mode==0){f.x=clamp(f.x+dx/k,-250,250);f.y=clamp(f.y+dy/k,-250,250)}
+    else{
+      const w=el.offsetWidth*f.s*k,h=el.offsetHeight*f.s*k;
+      f.px=clamp(f.px-dx/w*100*1.4/f.z,0,100);f.py=clamp(f.py-dy/h*100*1.4/f.z,0,100);
+    }
+  }else if(ptrs.size==2){
+    moved=true;
+    const [a,b]=[...ptrs.values()],d=Math.hypot(a.x-b.x,a.y-b.y);
+    if(lastD){const q=d/lastD;if(mode==0)f.s=clamp(f.s*q,.4,2);else f.z=clamp(f.z*q,1,3)}
+    lastD=d;
+  }
+  upd();
+});
+['pointerup','pointercancel'].forEach(n=>st.addEventListener(n,e=>{ptrs.delete(e.pointerId);lastD=0}));
+st.addEventListener('wheel',e=>{
+  if(!EDIT||sel<0||!e.target.closest('.ph.sel'))return;
+  e.preventDefault();const f=cur(),q=e.deltaY<0?1.06:1/1.06;
+  if(mode==0)f.s=clamp(f.s*q,.4,2);else f.z=clamp(f.z*q,1,3);upd();
+},{passive:false});
+st.onclick=e=>{
+  if(!EDIT)return;const ph=e.target.closest('.ph');
+  if(!ph){if(!e.target.closest('.tx'))deselect();return}
+  if(ph.classList.contains('empty')){tgt=+ph.dataset.i;$('file').click()}
+};
 /* upload foto (dikompres agar ringan) */
-$('stage').onclick=e=>{if(EDIT&&e.target.classList.contains('ph')){tgt=+e.target.dataset.i;$('file').click()}};
 $('file').onchange=e=>{
   const f=e.target.files[0];e.target.value='';if(!f)return;
   const im=new Image();
   im.onload=()=>{
-    const s=Math.min(1,600/Math.max(im.width,im.height)),c=document.createElement('canvas');
+    const s=Math.min(1,800/Math.max(im.width,im.height)),c=document.createElement('canvas');
     c.width=im.width*s;c.height=im.height*s;c.getContext('2d').drawImage(im,0,0,c.width,c.height);
-    S.p[S.i].ph[tgt]=c.toDataURL('image/jpeg',.7);render(0);URL.revokeObjectURL(im.src);
+    const pg=S.p[S.i],o=pg.pf[tgt]||dfl();
+    pg.ph[tgt]=c.toDataURL('image/jpeg',.72);pg.pf[tgt]={...o,z:1,px:50,py:50};
+    sel=tgt;render(0);URL.revokeObjectURL(im.src);
   };
   im.src=URL.createObjectURL(f);
 };
 /* swipe */
 let x0=0;
-$('stage').ontouchstart=e=>x0=e.touches[0].clientX;
-$('stage').ontouchend=e=>{const d=e.changedTouches[0].clientX-x0;if(Math.abs(d)>60&&!(EDIT&&document.activeElement.isContentEditable))go(d<0?1:-1)};
+let noSw=false;
+$('stage').ontouchstart=e=>{x0=e.touches[0].clientX;noSw=EDIT&&!!e.target.closest('.ph:not(.empty)')||e.touches.length>1};
+$('stage').ontouchend=e=>{const d=e.changedTouches[0].clientX-x0;if(Math.abs(d)>60&&!noSw&&!(EDIT&&document.activeElement.isContentEditable))go(d<0?1:-1)};
 /* simpan & QR */
 async function share(){
   if(!DB){alert('Penyimpanan online belum diatur. Isi konstanta DB di bagian atas script.');return}
@@ -141,7 +240,7 @@ async function share(){
 function dlQR(){
   const c=$('qr').querySelector('canvas'),o=document.createElement('canvas');
   o.width=o.height=c.width+60;const x=o.getContext('2d');x.fillStyle='#fff';x.fillRect(0,0,o.width,o.height);x.drawImage(c,30,30);
-  const a=document.createElement('a');a.download='qr-scrapbook.png';a.href=o.toDataURL();a.click();
+  const a=document.createElement('a');a.download='qr-pixiepages.png';a.href=o.toDataURL();a.click();
 }
 /* mode penerima: buka buku dari QR */
 (async()=>{
@@ -153,7 +252,9 @@ function dlQR(){
     S=newBook(t);
     S.p.forEach((pg,i)=>{const sp=(d.p||{})[i]||{};
       pg.tx=pg.tx.map((_,k)=>String((sp.tx||[])[k]||'').slice(0,400));
-      pg.ph=pg.ph.map((_,k)=>String((sp.ph||[])[k]||''));});
+      pg.ph=pg.ph.map((_,k)=>String((sp.ph||[])[k]||''));
+      const n=(v,d,a,b)=>{v=+v;return isFinite(v)&&v==v?clamp(v,a,b):d};
+      pg.pf=pg.pf.map((_,k)=>{const o=(sp.pf||[])[k]||{};return{x:n(o.x,0,-250,250),y:n(o.y,0,-250,250),s:n(o.s,1,.4,2),r:n(o.r,0,-30,30),z:n(o.z,1,1,3),px:n(o.px,50,0,100),py:n(o.py,50,0,100)}});});
     EDIT=false;$('stage').className='stage view';$('hint').style.display='none';
     $('ename').textContent='Pesan untukmu 💌';$('mine').href=location.pathname;$('mine').style.display='';
     render(0);
